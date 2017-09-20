@@ -1,9 +1,12 @@
 var express = require('express');
 var router = express.Router();
+var places_controller = require('../controllers/places');
+
 
 /* GET home page. */
-router.get('/', function(req, res, next) {
-  res.render('index', { title: 'Express' });
-});
+router.get('/', places_controller.getHome);
+
+/*POSt a search */
+router.post('/search', places_controller.searchPlacePost);
 
 module.exports = router;

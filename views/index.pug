@@ -3,3 +3,8 @@ extends layout
 block content
   h1= title
   p Welcome to #{title}
+  container
+    form
+    .form-inline
+      input#search(class="form-control" placeholder="Please Enter City")
+      #submit.button.btn.btn-primary(type='submit') Submit
