@@ -1,5 +1,7 @@
 var express = require('express');
 var router = express.Router();
+
+/*CONTROLLER for places*/
 var places_controller = require('../controllers/places');
 
 
