@@ -1,3 +1,30 @@
+function mapAndPics(results){  
+      //console.log("first results " ,results[0]);
+      /// remove parts of results i dont want
+      var cleanArray = results.map(function (x){
+          var newArray = [];
+          //console.log("name is ", x.name , " photos is", typeof x.photos[0].photo_reference);
+          newArray.name = x.name;
+          if (typeof x.photos != "undefined"){ // see if it exists before I try and access it
+              newArray.photoRef = x.photos[0].photo_reference;  // use this photoReference to get phot
+                getPics(newArray.photoRef, function(picture){
+                  newArray.photoLink = picture;
+                });
+            } else {
+              newArray.photoRef ="No Photo";
+            }
+          newArray.address = x.formatted_address;
+            return newArray
+      })
+
+      console.log(cleanArray);
+}
+
+function getPics (photoRef, callback){
+    callback("file.png")
+}
+
+
 // Get home page
 var https = require('https'); //for get request to wokr
 
@@ -24,9 +51,9 @@ exports.searchPlacePost = function(req, res) {
 
     res.on("end", function() {  //on end of data
       body = JSON.parse(body);  //in json format so we can manipulate data
-      console.log(body.results)
+      //console.log(body.results)
+      mapAndPics(body.results);
       // need to map this to something nicer to manipulate and store on DB (....the DB i havent even set up)
-
     })
 
     req.on('error', function(error) { //if an error
