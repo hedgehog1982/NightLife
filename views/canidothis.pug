@@ -1,0 +1,8 @@
+h1 Can i recieve this?
+  div
+    each val in placesList
+      div.d-flex.flex-row
+        img.img-thumbnail(src= val.photoRef, alt='Bar')
+        div.d-flex.flex-column
+          h4.d-inline= val.name
+          h4.d-inline= val.address
