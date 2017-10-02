@@ -1,27 +1,92 @@
+function storePic(url, path, photoRef, extension, callback) {
+  console.log("url is ", url);
+  var filename = path + photoRef + extension;
+  request.get({
+    url: url,
+    encoding: 'binary'
+  }, function(err, response, body) {
+    fs.writeFile(filename, body, 'binary', function(err) {
+      if (err) {
+        console.log(err);
+        callback(err);
+      } else {
+
+        console.log("The file was saved!");
+        callback(null);
+      }
+    });
+  });
+}
+
 function mapAndPics(results, callback) {
-  console.log(results[0])
-  var cleanArray = results.map(function(x) {  ///resulting in not being able to send it back ? build html this side?
+  //console.log(results[0])
+  console.log("Amount of results are ", results.length)
+  var cleanArray = results.map(function(x) {
     var newArray = [];
+    var path = "images/";
+    var extension = ".jpg"
     //console.log(results[0]);
     newArray.name = x.name;
     if (typeof x.photos != "undefined") { // see if it exists before I try and access it
-      newArray.photoRef = process.env.GpicQuery + x.photos[0].photo_reference; // use this photoReference to get photo was going to cache it but dont need to
+      newArray.photoRef = path + x.place_id + extension;
+
+      //not going to bother with errors for now
+      storePic(process.env.GpicQuery + x.photos[0].photo_reference, "public/" + path, x.place_id, extension, function(err) {
+        //put a wait in here before doing callback
+        console.log("current errors are ", err)
+      }); //messy!!!!! place id doesnt change use this for pic..callback as pic not ready before rendered
+
+
     } else {
-      newArray.photoRef = "No Photo";
+      newArray.photoRef = "No Photo"; // need to store a temp pic and use that even
     }
     newArray.address = x.formatted_address;
 
-    return {"name" : newArray.name, "photoRef" : newArray.photoRef, "address" : newArray.address};
+    return {
+      "name": newArray.name,
+      "photoRef": newArray.photoRef,
+      "address": newArray.address
+    };
   });
-
-
-
-
-  callback (null, cleanArray);
+  callback(null, cleanArray);
 }
+
+
+function getMapUrl(mapUrl) {
+  return new Promise(function(resolve, reject) {
+    https.get(mapUrl, function(result) {
+      console.log("in get");
+      result.setEncoding("utf8");;
+      var body = "";
+
+      result.on("data", function(chunk) { //while recieving data add to body
+        body += chunk;
+      });
+
+      result.on("end", function() { //on end of data
+        console.log("rexieved end")
+        body = JSON.parse(body); //in json format so we can manipulate data
+        //console.log("results" , body.results)
+        resolve(body.results);
+      })
+
+      result.on('error', function(error) { //if an error
+        console.log('ERROR: ' + error.message);
+        reject(error)
+      });
+
+    });
+
+
+  })
+}
+
+
 
 // Get home page
 var https = require('https'); //for get request to work
+var fs = require('fs'); //storing to file system
+var request = require('request');
 
 exports.getHome = function(req, res) {
   res.render('index', {
@@ -35,35 +100,15 @@ exports.searchPlacePost = function(req, res) {
   const mapUrl = process.env.GURL + process.env.GApiKey + process.env.Gquery + req.body.search;
   console.log("map url is ", mapUrl);
 
-
-  https.get(mapUrl, function(result) {
-    console.log("in get");
-    result.setEncoding("utf8");;
-    var body = "";
-
-    result.on("data", function(chunk) { //while recieving data add to body
-      body += chunk;
-    });
-
-    result.on("end", function() { //on end of data
-      body = JSON.parse(body); //in json format so we can manipulate data
-      mapAndPics(body.results, function (err, data){ //maps to a new array and passes back
-      //console.log("callback was ", data);
-      //  console.log(data[0])
-        //res.send(JSON.stringify(data));
-        //res.send(data[1]);
-        res.render('canidothis',{
-          placesList : data
-        });
-      })
-
+  // get map data  -> check if
+  getMapUrl(mapUrl)
+    .then(function(result) {
+      console.log("amount of results are ", result.length);
+      console.log('Success: ' + result[0].formatted_address);
+      //for each result i want to check if it exists in db
+    })
+    .catch(function(error) {
+      console.log('Error: ' + error)
     })
 
-    result.on('error', function(error) { //if an error
-      console.log('ERROR: ' + error.message);
-    });
-
-  });
-
-  //res.send(mapUrl); // for sending back to frontend
 };
