@@ -13,9 +13,9 @@ router.get('/', places_controller.getHome);
 router.post('/search', places_controller.searchPlacePost);
 
 /*twitter login */
-//router.get("/auth/twitter", login_controller.twitterLogin
+router.get("/auth/twitter", login_controller.twitterLogin);
 
 /*twitter callback */
-//router.get('/auth/twitter/callback', login_controller.twitterCallback);
+router.get('/auth/twitter/callback', login_controller.twitterCallback);
 
 module.exports = router;
