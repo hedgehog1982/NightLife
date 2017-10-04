@@ -14,6 +14,7 @@
     "fs": "0.0.1-security",
     "mongoose": "^4.11.14",
     "morgan": "~1.8.1",
+    "node-twitter-api": "^1.8.0",
     "path": "^0.12.7",
     "pug": "~2.0.0-beta11",
     "request": "^2.82.0",

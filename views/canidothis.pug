@@ -1,8 +1,10 @@
-h1 Can i recieve this?
+h1 Displaying Results
   div
     each val in placesList
       div.d-flex.flex-row
-        img.img-thumbnail(src= val.photoRef, alt='Bar')
+        a(href='localhost:3000', target='_blank')
+          img.img-thumbnail(src= val.pictureFile, alt='Bar')
         div.d-flex.flex-column
           h4.d-inline= val.name
           h4.d-inline= val.address
+          h4.d-inline= val.going

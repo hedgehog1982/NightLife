@@ -1,8 +1,7 @@
 function storePic(placeObject) {
     return new Promise(function(resolve, reject) {
-  var url = process.env.GpicQuery + placeObject.photos[0].photo_reference;
   if (typeof placeObject.photos != "undefined") {  //if a picture exists for a place then get file
-    console.log("url is ", url);
+    var url = process.env.GpicQuery + placeObject.photos[0].photo_reference;
     var path = "public/images/";
     var extension = ".jpg"
     var filename = path + placeObject.place_id + extension;
@@ -17,50 +16,17 @@ function storePic(placeObject) {
         } else {
           console.log("The file was saved!");
           placeObject.pictureFile = "images/" + placeObject.place_id + extension; //dont want public or links dont work;
-          resolve (placeObject);
+              resolve (placeObject);
         }
       });
     });
   } else {  //no pic
     placeObject.pictureFile = "No pic"; // need a dummy file ideally
-              resolve (placeObject);
+        resolve (placeObject);
   }
+
 });
 }
-
-/*function mapAndPics(results, callback) {
-  //console.log(results[0])
-  console.log("Amount of results are ", results.length)
-  var cleanArray = results.map(function(x) {
-    var newArray = [];
-    var path = "images/";
-    var extension = ".jpg"
-    //console.log(results[0]);
-    newArray.name = x.name;
-    if (typeof x.photos != "undefined") { // see if it exists before I try and access it
-      newArray.photoRef = path + x.place_id + extension;
-
-      //not going to bother with errors for now
-      storePic(process.env.GpicQuery + x.photos[0].photo_reference, "public/" + path, x.place_id, extension, function(err) {
-        //put a wait in here before doing callback
-        console.log("current errors are ", err)
-      }); //messy!!!!! place id doesnt change use this for pic..callback as pic not ready before rendered
-
-
-    } else {
-      newArray.photoRef = "No Photo"; // need to store a temp pic and use that even
-    }
-    newArray.address = x.formatted_address;
-
-    return {
-      "name": newArray.name,
-      "photoRef": newArray.photoRef,
-      "address": newArray.address
-    };
-  });
-  callback(null, cleanArray);
-}*/
-
 
 function getMapUrl(mapUrl) {
   return new Promise(function(resolve, reject) {
@@ -114,12 +80,31 @@ exports.searchPlacePost = function(req, res) {
   // get map data  -> check if
   getMapUrl(mapUrl)
     .then(function(result) {
-      placeDB.findPlace(result[0]) //do it with one, get it working then do multiple with promises
-        .then(function(result) { // not the correct waY!!! pretty sure!
-          console.log("done DB STUFF", result)
-          storePic(result)
+      //console.log("############ length of array is is ", result.length);
+
+      var promises = [];      //multiple promises
+        for(var i=0;i<result.length;i++){
+            promises.push(placeDB.findPlace(result[i]));
+          }
+          console.log("url resuts", result.length)
+          Promise.all(promises)
+           //do it with one, get it working then do multiple with promises
+
+        .then(function(resultDB) { // not the correct waY!!! pretty sure!
+          //console.log("done DB STUFF", result)
+          var promises = [];
+          for(var i=0;i<resultDB.length;i++){
+              promises.push(storePic(resultDB[i]));
+            }
+            console.log("DB resuts", promises.length)
+            Promise.all(promises)
             .then(function (resultWithPic){
-              console.log("got a Pic")
+              console.log("pic results", resultWithPic.length)
+              //console.log("got pics", "/n", resultWithPic);
+              res.render('canidothis', {
+                placesList: resultWithPic
+              });
+              //res.send(resultWithPic);
             })
         })
     })
