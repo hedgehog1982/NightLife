@@ -10,6 +10,7 @@ var twitter = new Twitter({   //new twitter
 	var newrequestSecret;  // secret passsed back from twitter
 
   exports.twitterLogin = function(req, res) {  //requet a token and store
+    console.log(twitter.login)
       twitter.getRequestToken(function(err, requestToken, requestSecret) {
           if (err)
               res.status(500).send(err);
