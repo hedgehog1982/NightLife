@@ -7,22 +7,22 @@ var bodyParser = require('body-parser');
 var dotenv = require('dotenv');
 var https = require('https');  //get requests to https
 var path = require('path');  //so i dont need to include absolute paths
-var mongoose = require('mongoose');
+
 
 var index = require('./routes/index');
 var users = require('./routes/users');
 
 var app = express();
 
-mongoose.connect(process.env.MONGO_URI);  //connect to database, use path in .env
-mongoose.Promise = global.Promise;
+var mongoose = require('mongoose');
+
 
 
 app.use(express.static(path.resolve('./public')));
 
 //load .env file
 dotenv.load();
-
+mongoose.connect(process.env.MONGO_URI);  //connect to database, use path in .env
 // view engine setup
 app.set('views', path.join(__dirname, 'views'));
 app.set('view engine', 'pug');

@@ -1,24 +1,34 @@
-function storePic(url, path, photoRef, extension, callback) {
-  console.log("url is ", url);
-  var filename = path + photoRef + extension;
-  request.get({
-    url: url,
-    encoding: 'binary'
-  }, function(err, response, body) {
-    fs.writeFile(filename, body, 'binary', function(err) {
-      if (err) {
-        console.log(err);
-        callback(err);
-      } else {
-
-        console.log("The file was saved!");
-        callback(null);
-      }
+function storePic(placeObject) {
+    return new Promise(function(resolve, reject) {
+  var url = process.env.GpicQuery + placeObject.photos[0].photo_reference;
+  if (typeof placeObject.photos != "undefined") {  //if a picture exists for a place then get file
+    console.log("url is ", url);
+    var path = "public/images/";
+    var extension = ".jpg"
+    var filename = path + placeObject.place_id + extension;
+    request.get({
+      url: url,
+      encoding: 'binary'
+    }, function(err, response, body) {
+      fs.writeFile(filename, body, 'binary', function(err) {
+        if (err) {
+          console.log(err);
+          reject(err);
+        } else {
+          console.log("The file was saved!");
+          placeObject.pictureFile = "images/" + placeObject.place_id + extension; //dont want public or links dont work;
+          resolve (placeObject);
+        }
+      });
     });
-  });
+  } else {  //no pic
+    placeObject.pictureFile = "No pic"; // need a dummy file ideally
+              resolve (placeObject);
+  }
+});
 }
 
-function mapAndPics(results, callback) {
+/*function mapAndPics(results, callback) {
   //console.log(results[0])
   console.log("Amount of results are ", results.length)
   var cleanArray = results.map(function(x) {
@@ -49,7 +59,7 @@ function mapAndPics(results, callback) {
     };
   });
   callback(null, cleanArray);
-}
+}*/
 
 
 function getMapUrl(mapUrl) {
@@ -64,7 +74,7 @@ function getMapUrl(mapUrl) {
       });
 
       result.on("end", function() { //on end of data
-        console.log("rexieved end")
+        console.log("recieved end")
         body = JSON.parse(body); //in json format so we can manipulate data
         //console.log("results" , body.results)
         resolve(body.results);
@@ -87,6 +97,7 @@ function getMapUrl(mapUrl) {
 var https = require('https'); //for get request to work
 var fs = require('fs'); //storing to file system
 var request = require('request');
+var placeDB = require('../controllers/database.js'); //for database reads
 
 exports.getHome = function(req, res) {
   res.render('index', {
@@ -103,10 +114,16 @@ exports.searchPlacePost = function(req, res) {
   // get map data  -> check if
   getMapUrl(mapUrl)
     .then(function(result) {
-      console.log("amount of results are ", result.length);
-      console.log('Success: ' + result[0].formatted_address);
-      //for each result i want to check if it exists in db
+      placeDB.findPlace(result[0]) //do it with one, get it working then do multiple with promises
+        .then(function(result) { // not the correct waY!!! pretty sure!
+          console.log("done DB STUFF", result)
+          storePic(result)
+            .then(function (resultWithPic){
+              console.log("got a Pic")
+            })
+        })
     })
+
     .catch(function(error) {
       console.log('Error: ' + error)
     })
