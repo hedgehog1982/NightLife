@@ -5,6 +5,8 @@ var router = express.Router();
 var places_controller = require('../controllers/places');
 var login_controller = require('../controllers/login');
 
+var newrequestSecret;
+
 
 /* GET home page. */
 router.get('/', places_controller.getHome);

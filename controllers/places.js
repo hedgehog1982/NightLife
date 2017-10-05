@@ -21,7 +21,7 @@ function storePic(placeObject) {
       });
     });
   } else {  //no pic
-    placeObject.pictureFile = "No pic"; // need a dummy file ideally
+    placeObject.pictureFile = "images/no_image_thumb.gif"; // need a dummy file ideally
         resolve (placeObject);
   }
 
