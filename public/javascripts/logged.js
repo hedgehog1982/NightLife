@@ -1,5 +1,5 @@
 $(document).ready(function() {
     console.log("loaded JS")
-    opener.document.setData("hello");
+    opener.setData("hello");
     window.close();
 });

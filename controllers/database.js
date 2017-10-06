@@ -6,11 +6,9 @@ var placesPic = require('../controllers/places')
 
 function findPlace(placeToSearch) {
   return new Promise(function(resolve, reject) {
-    //placesPic.storepic(  ,,".jpg",)
-    //
     var currentDate = new Date();
-    //placeSchema.find()
-    placeSchema.findOne({ //do a serach for the
+
+    placeSchema.findOne({ //do a serach for the place
       place_id: placeToSearch.place_id
     }, function(err, place) {
       if (err) {
@@ -65,3 +63,9 @@ function goingPlace() {
 module.exports = {
   findPlace: findPlace
 }
+
+exports.getList = function(req, res) {
+  //search for twitter id
+  //get array of place id
+  //return back to browser
+};

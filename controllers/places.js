@@ -1,7 +1,12 @@
 function storePic(placeObject) {
+  var url;
     return new Promise(function(resolve, reject) {
-  if (typeof placeObject.photos != "undefined") {  //if a picture exists for a place then get file
+
+  if (typeof placeObject.photos == "undefined") {  // no picture, use streetview!
+    url = process.env.GStreet + process.env.GApiKey + "&location=" + placeObject.geometry.location.lat + "," + placeObject.geometry.location.lng
+  } else {            // else use google map pic
     var url = process.env.GpicQuery + placeObject.photos[0].photo_reference;
+  }
     var path = "public/images/";
     var extension = ".jpg"
     var filename = path + placeObject.place_id + extension;
@@ -20,10 +25,11 @@ function storePic(placeObject) {
         }
       });
     });
-  } else {  //no pic
+  /*} else {  //no pic
+    console.log(process.env.GStreet + process.env.GApiKey + "&location=" + placeObject.geometry.location.lat + "," + placeObject.geometry.location.lng)
     placeObject.pictureFile = "images/no_image_thumb.gif"; // need a dummy file ideally
-        resolve (placeObject);
-  }
+    */
+
 
 });
 }
@@ -80,7 +86,7 @@ exports.searchPlacePost = function(req, res) {
   // get map data  -> check if
   getMapUrl(mapUrl)
     .then(function(result) {
-      //console.log("############ length of array is is ", result.length);
+      console.log("############ length of array is is ", result[0]);
 
       var promises = [];      //multiple promises
         for(var i=0;i<result.length;i++){

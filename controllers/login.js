@@ -1,6 +1,18 @@
 //not in use yet
 var Twitter = require("node-twitter-api"); //for twitter login
 
+  exports.setUp = function (req, res ,next){
+    if (req.session.twitUser === undefined){  //if no stored session data
+    req.session.twitUser = {"id": "" ,   //twitter id
+     "token": "",
+    "username": "",
+     "displayName": ""
+    };
+    }
+    console.log(req.session.twitUser)
+    next();
+  }
+
   exports.twitterLogin = function(req, res) {  //requet a token and store
     var twitter = new Twitter({   //new twitter duplicating this
         consumerKey: process.env.TWITKEY,
@@ -30,6 +42,7 @@ var Twitter = require("node-twitter-api"); //for twitter login
           consumerSecret: process.env.TWITSECRET,
           callback: process.env.TWITCALLBACK
       });
+
       console.log("at callback ", newrequestSecret);
         var oauth_token = (req.query.oauth_token);  //easier way? ()
         var oauth_verifier = req.query.oauth_verifier;
@@ -45,11 +58,11 @@ var Twitter = require("node-twitter-api"); //for twitter login
                     res.status(500).send(err);
                 else
                     console.log(user); //store the details we need
-                    //req.session.twitUser.id = user.id;
-                    //req.session.twitUser.token = accessToken;
-                    //req.session.twitUser.username =  user.screen_name;
-                    //req.session.twitUser.displayName= user.name;
-                    //console.log(req.session.twitUser);  //just so i can see the output for now
+                    req.session.twitUser.id = user.id;
+                    req.session.twitUser.token = accessToken;
+                    req.session.twitUser.username =  user.screen_name;
+                    req.session.twitUser.displayName= user.name;
+                    console.log(req.session.twitUser);  //just so i can see the output for now
                     res.render('loggedIn', {
                       loginName: user.name
                     });

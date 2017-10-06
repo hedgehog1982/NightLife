@@ -2,6 +2,7 @@ var express = require('express');
 var path = require('path');
 var favicon = require('serve-favicon');
 var logger = require('morgan');
+var session = require('express-session'); //to store session data
 var cookieParser = require('cookie-parser');
 var bodyParser = require('body-parser');
 var dotenv = require('dotenv');
@@ -9,6 +10,7 @@ var https = require('https');  //get requests to https
 var path = require('path');  //so i dont need to include absolute paths
 
 
+var newrequestSecret;  //for twitter login
 var index = require('./routes/index');
 var users = require('./routes/users');
 
@@ -33,8 +35,14 @@ app.use(logger('dev'));
 app.use(bodyParser.json());
 app.use(bodyParser.urlencoded({ extended: false }));
 app.use(cookieParser());
+app.use(session({  // to use session data
+	secret: 'secretSquirrel',
+	resave: false,
+	saveUninitialized: true
+}));
 app.use(express.static(path.join(__dirname, 'public')));
 
+app.use
 app.use('/', index);
 app.use('/users', users);
 

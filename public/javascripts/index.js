@@ -11,8 +11,9 @@ $(document).ready(function() {
         event.preventDefault();
         var search = $("#search").val();
         console.log(submit)
+
         $.post("/search", { "search" : search }, function(data) {
-          $("#posthtml").append(data);
+          $("#posthtml").replaceWith(data);
               //console.log(data);
           });
         });
