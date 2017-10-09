@@ -1,7 +1,9 @@
 var placeSchema = require('../models/places'); // import my mongoose schema
 var placesPic = require('../controllers/places')
 
-
+exports.getList = function(req, res) {
+    res.send(req.session.twitUser.displayName);
+}
 
 
 function findPlace(placeToSearch) {
@@ -23,7 +25,7 @@ function findPlace(placeToSearch) {
       } else if (currentDate.getDate() != place.refresh_date.getDate() || currentDate.getMonth() != place.refresh_date.getMonth() || currentDate.getFullYear() != place.refresh_date.getFullYear()) { //older date so outdated update .going to 0      console.log("Current Date  =", currentDate.getDate(), '/n', "Date on DB    =", place.refresh_date.getDate());
         placeToSearch.going = 0;
         console.log("outdated needs amending")
-        outDated();
+        outDated(place, currentDate);
       } else { // today date and in db! fancy bet this happens only during testing
         console.log("in date, amount going is ", place.going)
         placeToSearch.going = place.going;
@@ -37,9 +39,21 @@ function findPlace(placeToSearch) {
   });
 }
 
-function outDated() {
+function outDated(place,currentDate) {
   console.log("this is yesterdays, zero it");
-  ////////need to amend/////
+  console.log(place);
+
+     placeSchema.findByIdAndUpdate(place._id, { $set: {
+       refresh_date: currentDate,
+       going : 0
+     }}, {
+       new: true  //returns updated doc not original
+     }
+       , function (err, place) {
+       if (err) return handleError(err);
+       console.log("updated : ", place)
+     });
+
 }
 
 function newPlace(place_id) {
@@ -63,9 +77,3 @@ function goingPlace() {
 module.exports = {
   findPlace: findPlace
 }
-
-exports.getList = function(req, res) {
-  //search for twitter id
-  //get array of place id
-  //return back to browser
-};

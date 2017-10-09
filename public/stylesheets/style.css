@@ -1,8 +1,15 @@
-body {
-  padding: 50px;
-  font: 14px "Lucida Grande", Helvetica, Arial, sans-serif;
-}
-
 a {
   color: #00B7FF;
+}
+
+.card-img-top{
+  min-height: 350px;
+  max-height: 350px;
+  min-width: auto;
+}
+
+.green-border{
+  border-style: solid;
+  border-color: green;
+
 }

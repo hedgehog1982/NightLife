@@ -1,10 +1,12 @@
 
 #posthtml
-  div
+  div.row
     each val in placesList
-      div.d-flex.flex-row(id= val.place_id)
-        img.img-thumbnail(src= val.pictureFile, alt='Bar')
-        div.d-flex.flex-column
-          h4.d-inline= val.name
-          h4.d-inline= val.address
-          h4.d-inline= val.going
+      div.col-md-6.col-lg-4.col-xl-4
+        .card
+          img.card-img-top(src= val.pictureFile, alt='Card image cap')
+          .card-body
+            h4.card-title
+              div= val.name
+            p.card-text
+              div= val.formatted_address

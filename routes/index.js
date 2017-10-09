@@ -21,6 +21,10 @@ router.get("/auth/twitter", login_controller.twitterLogin);
 /*twitter callback */
 router.get('/auth/twitter/callback', login_controller.twitterCallback);
 
+router.get('/IDlist', function(req, res){
+  res.send(req.session.twitUser.displayName);
+})
+
 /*GET list of places where logged in person is going */
 // router.get('/getlist', places_controller.getList)
 
