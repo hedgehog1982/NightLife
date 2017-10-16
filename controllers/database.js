@@ -2,13 +2,37 @@ var placeSchema = require('../models/places'); // import my mongoose schema
 var placesPic = require('../controllers/places')
 
 exports.getList = function(req, res) {
-    res.send(req.session.twitUser.displayName);
+
+  var currentDate = new Date();
+
+
+
+  placeSchema.find({ //do a serach for the place
+    going: req.session.twitUser.id,
+
+  }, 'place_id -_id', function(err, places) { //only return place_id
+    if (err) {
+      reject(err);
+    }
+    //console.log(places)
+    var justIDs= places.map(function (aplace){
+
+      return aplace.place_id;
+    })
+
+    res.send({"name" : req.session.twitUser.displayName, "data" :justIDs});
+  })
 }
 
 
-function findPlace(placeToSearch) {
+
+/*FIND A PLACE in database work out wether its new and needs adding or not*/
+exports.findPlace = function(placeToSearch) {
   return new Promise(function(resolve, reject) {
     var currentDate = new Date();
+    var newerDate = Date.now();
+    console.log("using new date ", currentDate.getHours());
+    //console.log("using date now ", newerDate.getHours());
 
     placeSchema.findOne({ //do a serach for the place
       place_id: placeToSearch.place_id
@@ -27,10 +51,14 @@ function findPlace(placeToSearch) {
         console.log("outdated needs amending")
         outDated(place, currentDate);
       } else { // today date and in db! fancy bet this happens only during testing
-        console.log("in date, amount going is ", place.going)
-        placeToSearch.going = place.going;
+        console.log("in date, amount going is ", place.going.length)
+        placeToSearch.going = place.going.length;
       }
-      resolve(placeToSearch);
+      placesPic.storePic(placeToSearch)
+        .then(function (resultWithPic){
+          resolve(placeToSearch);
+        })
+
 
       //console.log("read from DB!", placeToSearch, '\n', placeToSearch.place_id) //
 
@@ -39,13 +67,14 @@ function findPlace(placeToSearch) {
   });
 }
 
+/*OUTDATED place, no update in over a day. Needs going zeroing and refresh date updating*/
 function outDated(place,currentDate) {
   console.log("this is yesterdays, zero it");
   console.log(place);
 
      placeSchema.findByIdAndUpdate(place._id, { $set: {
        refresh_date: currentDate,
-       going : 0
+       going : []
      }}, {
        new: true  //returns updated doc not original
      }
@@ -56,13 +85,14 @@ function outDated(place,currentDate) {
 
 }
 
+/*NEWPLACE is to be added to database */
 function newPlace(place_id) {
   console.log("writing a new place!")
   var currentDate = new Date();
   placeSchema.create({
     place_id: place_id,
-    refresh_date: currentDate,
-    going: 0
+    refresh_date: currentDate//,
+    //going: ;
   }, function(err, instance) {
     if (err) return handleError(err);
     console.log("saved!");
@@ -70,10 +100,42 @@ function newPlace(place_id) {
   });
 }
 
-function goingPlace() {
-  console.log("A person wants to go here")
-}
+/*IWANTTOGO indicates a person has clicked on the place, need to decide if the going or not going*/
+exports.iWantToGo = function (req, res) {
+  var action; //what I am doing on database
+  console.log("A person wants to go here", req.body.id );
+  console.log("I need to ", req.body.todo , " it")
 
-module.exports = {
-  findPlace: findPlace
+  if ( req.body.toDo == "add"){ //sure i can do this with a variable (to $pullAll and addtoset) but wont let me
+    console.log("adding");
+    placeSchema.findOneAndUpdate(
+      {place_id: req.body.id},
+      {$addToSet: {
+        going : req.session.twitUser.id //twitter id
+      }}
+      ,function (err){
+        if(err) {
+          console.error('ERROR!', err);
+        }
+        res.send("added to database!");
+  });
+  } else {
+    console.log("removing")
+    placeSchema.findOneAndUpdate(
+      {place_id: req.body.id},
+      {$pull: {
+        going : req.session.twitUser.id //twitter id
+      }}
+      ,function (err){
+        if(err) {
+          console.error('ERROR!', err);
+        }
+          res.send("Removed from database!");
+  });
+
+  }
+
+
+
+
 }

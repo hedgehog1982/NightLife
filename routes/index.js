@@ -4,9 +4,14 @@ var router = express.Router();
 
 /*CONTROLLER for places*/
 var places_controller = require('../controllers/places');
-var login_controller = require('../controllers/login');
-//var database_controller = require('../controllers/database')
 
+/*CONTROLLER for all things login Related*/
+var login_controller = require('../controllers/login');
+
+/*CONTROLLER for database reads and write */
+var database_controller = require('../controllers/database')
+
+/* Blank login */
 router.use(login_controller.setUp);
 
 /* GET home page. */
@@ -21,11 +26,10 @@ router.get("/auth/twitter", login_controller.twitterLogin);
 /*twitter callback */
 router.get('/auth/twitter/callback', login_controller.twitterCallback);
 
-router.get('/IDlist', function(req, res){
-  res.send(req.session.twitUser.displayName);
-})
-
 /*GET list of places where logged in person is going */
-// router.get('/getlist', places_controller.getList)
+router.get('/IDlist', database_controller.getList);
+
+/*POST a new Database Entry (post stops refreshing)*/
+router.post('/going',database_controller.iWantToGo);
 
 module.exports = router;

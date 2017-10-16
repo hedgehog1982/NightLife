@@ -6,7 +6,8 @@ var Twitter = require("node-twitter-api"); //for twitter login
     req.session.twitUser = {"id": "" ,   //twitter id
      "token": "",
     "username": "",
-     "displayName": ""
+     "displayName": "",
+     "Toffset" : 0
     };
     }
     console.log(req.session.twitUser)
@@ -62,6 +63,7 @@ var Twitter = require("node-twitter-api"); //for twitter login
                     req.session.twitUser.token = accessToken;
                     req.session.twitUser.username =  user.screen_name;
                     req.session.twitUser.displayName= user.name;
+                    req.session.twitUser.Toffset = user.utc_offset;
                     console.log(req.session.twitUser);  //just so i can see the output for now
                     res.render('loggedIn', {
                       loginName: user.name
