@@ -36,13 +36,13 @@ $(document).ready(function() {
     event.preventDefault();
     var search = $("#search").val();
     console.log(submit)
-    $("button").button("loading");
+    $("#submit").text("loading").attr("disabled", true);
 
     $.post("/search", {
       "search": search
     }, function(data) {
       $("#posthtml").replaceWith(data);
-      $("#submit").button("reset");
+      $("#submit").text("Submit").attr("disabled", false);
       highlightPlaces(); //if logged in and we do a search makes sure its highlighted
       //console.log(data);
     });

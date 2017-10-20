@@ -3,12 +3,12 @@
   div.row
     each val in placesList
       div.col-md-6.col-lg-4.col-xl-4
-        .card
-          img.card-img-top(src= val.pictureFile, alt='Card image cap', id= val.place_id)
-          .card-body
-            h4.card-title
-              div= val.name
-            p.card-text
-              div= val.formatted_address
-            p.card-text
-              .going Amount of People going to this place is #{val.going}
+          .card
+            img.card-img-top(src= val.pictureFile, alt='Card image cap', id= val.place_id)
+            .card-body
+              h4.card-title
+                div= val.name
+              p.card-text
+                div= val.formatted_address
+              p.card-text
+                .going Amount of People going to this place is #{val.going}

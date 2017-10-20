@@ -123,9 +123,6 @@ function displayResult (resultWithPic, res){
 
 }
 
-
-
-
 // Get home page
 var https = require('https'); //for get request to work
 var fs = require('fs'); //storing to file system
@@ -133,9 +130,7 @@ var request = require('request');
 var placeDB = require('../controllers/database.js'); //for database reads
 
 exports.getHome = function(req, res) {
-  res.render('index', {
-    title: 'Express'
-  });
+  res.render('index');
 };
 
 // Get places

@@ -1,12 +1,14 @@
 extends layout
 
 block content
-  h1= title
-  p Welcome to #{title}
+  h1.text-center Plans for Tonight?
+  h4.text-center See who's going where and RSVP ahead of Time
   container
     form
-    .form-inline
-      input#search(class="form-control" placeholder="Please Enter City" )
-      #submit.button.btn.btn-primary(type='submit', data-loading-text='LOADING!') Submit
+    .form-inline.justify-content-center.form-row
+      .col-auto
+        input#search(class="form-control" placeholder="Please Enter City" )
+        button#submit.button.btn.btn-primary(type='submit') Submit
   container
     #posthtml
+    footer.footer Designed by Wayne Williamson (Uses Google Maps API and Node.js)
