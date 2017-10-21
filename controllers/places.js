@@ -147,7 +147,7 @@ exports.searchPlacePost = function(req, res) {
 
   getMapUrl(mapUrl, "map")
     .catch(function(error){
-      res.send(error)
+      res.render('searchResultsError');
     })
     .then(results => getTime(results))
     .then(result => getPictures(result))
