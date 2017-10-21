@@ -60,7 +60,13 @@ function getMapUrl(mapUrl, requestType) {
         body = JSON.parse(body); //in json format so we can manipulate data
         //console.log("results" , body.results)
         if (requestType === "map") {
-          resolve(body.results);
+          console.log("results length is ", body.results.length)
+          if (body.results.length !== 0) {
+            resolve(body.results);
+          } else {
+            reject ("NO RESULTS FOUND");
+          }
+
         } else {
           console.log("got map request")
           resolve(body);
@@ -79,43 +85,43 @@ function getMapUrl(mapUrl, requestType) {
 }
 
 function getTime(results) {
-    return new Promise(function(resolve, reject) {
-  console.log("getting Time diff", process.env.Tquery);
-  if (results.length !== 0) {
-    console.log("got some results")
-    var location = results[0].geometry.location
-    const timeURL = process.env.TURL + process.env.GApiKey + process.env.TQuery + (location.lat + "," + location.lng);
-    console.log(timeURL);
-    getMapUrl(timeURL)
-      .then(function(timeLog) {
-        //return new Promise(function(resolve, reject) {
-        console.log(Date.now() + (36000 * 1000)) //to get seconds rather
-        console.log("######TIME DIFF IS ######", timeLog.rawOffset)
-        results.offset = timeLog.rawOffset;
-        resolve (results);
-      })
-    console.log(Date.now() + (36000 * 1000)) //to get seconds rather
-  } else {
-    resolve (results);  //should be an error?
-  }
-})
+  return new Promise(function(resolve, reject) {
+    console.log("getting Time diff", process.env.Tquery);
+    if (results.length !== 0) {
+      console.log("got some results")
+      var location = results[0].geometry.location
+      const timeURL = process.env.TURL + process.env.GApiKey + process.env.TQuery + (location.lat + "," + location.lng);
+      console.log(timeURL);
+      getMapUrl(timeURL)
+        .then(function(timeLog) {
+          //return new Promise(function(resolve, reject) {
+          console.log(Date.now() + (36000 * 1000)) //to get seconds rather
+          console.log("######TIME DIFF IS ######", timeLog.rawOffset)
+          results.offset = timeLog.rawOffset;
+          resolve(results);
+        })
+      console.log(Date.now() + (36000 * 1000)) //to get seconds rather
+    } else {
+      resolve(results); //should be an error?
+    }
+  })
 }
 
 function getPictures(result) {
-    return new Promise(function(resolve, reject) {
-  var promises = []; //multiple promises
-  for (var i = 0; i < result.length; i++) {
-    result[i].timeOffset = result.offset;
-    promises.push(placeDB.findPlace(result[i]));
-  }
-  console.log("############ length of array is is ", result[0]);
-  console.log("url results", result.length)
-  resolve( Promise.all(promises))
-})
+  return new Promise(function(resolve, reject) {
+    var promises = []; //multiple promises
+    for (var i = 0; i < result.length; i++) {
+      result[i].timeOffset = result.offset;
+      promises.push(placeDB.findPlace(result[i]));
+    }
+    console.log("############ length of array is is ", result[0]);
+    console.log("url results", result.length)
+    resolve(Promise.all(promises))
+  })
 
 }
 
-function displayResult (resultWithPic, res){
+function displayResult(resultWithPic, res) {
   console.log("got pics");
   res.render('searchResults', {
     placesList: resultWithPic
@@ -140,6 +146,9 @@ exports.searchPlacePost = function(req, res) {
   console.log("map url is ", mapUrl);
 
   getMapUrl(mapUrl, "map")
+    .catch(function(error){
+      res.send(error)
+    })
     .then(results => getTime(results))
     .then(result => getPictures(result))
     .then(resultWithPic => displayResult(resultWithPic, res))
