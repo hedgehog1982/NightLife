@@ -1,2 +1,4 @@
 .env
 public/images/*
+
+!public/images/keep.txt
